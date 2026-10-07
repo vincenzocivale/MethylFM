@@ -1,0 +1,8 @@
+enabled: true
+project: MethylFM
+entity: null
+group: pretrain
+job_type: pretrain
+tags: [cpgcorpus, lejepa, mhc]
+log_interval: 50
+repr_log_interval: 500

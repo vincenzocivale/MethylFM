@@ -1,0 +1,57 @@
+# PILOT (chr22 only). For the full universe use alphagenome.yaml.
+# Offline pipeline producing the frozen AlphaGenome CpG embedding store.
+#   methylfm audit-cpg-coordinates   --config configs/cpg_encoder/alphagenome.yaml
+#   methylfm extract-cpg-embeddings  --config configs/cpg_encoder/alphagenome.yaml
+#   methylfm validate-cpg-embeddings --config configs/cpg_encoder/alphagenome.yaml
+# Extraction/validation run in the separate JAX environment (docs/CPG_ENCODER.md).
+
+# The assembly of BOTH the manifests and the FASTA. Nothing is lifted over; the
+# audit checks the CG motif at every coordinate against this FASTA.
+reference_genome: GRCh38
+reference_fasta: data/reference/hg38.fa   # or $METHYLFM_REFERENCE_FASTA
+
+# Zhou-lab hg38 manifests (github.com/zhou-lab/InfiniumAnnotationData, Anno/<ARRAY>/):
+# BED-like, 0-based CpG_beg == the cytosine, CpG_end == CpG_beg + 2.
+manifests:
+  HM27: data/reference/HM27.hg38.manifest.tsv.gz
+  HM450: data/reference/HM450.hg38.manifest.tsv.gz
+  EPIC: data/reference/EPIC.hg38.manifest.tsv.gz
+  EPICv2: data/reference/EPICv2.hg38.manifest.tsv.gz
+  MSA: data/reference/MSA.hg38.manifest.tsv.gz
+
+output_dir: outputs/cpg_encoder        # coordinate_audit.json, cpg_universe.parquet, reports
+store_dir: outputs/cpg_encoder/pilot_chr22
+
+audit:
+  max_reference_mismatch_fraction: 1.0e-4
+  max_excluded_fraction: 0.02
+
+# Window/core policy. Window = AlphaGenome input length (official max 2**20);
+# core = the part of each window whose CpGs it owns. margin = (window-core)/2
+# bases of context on each side of every owned CpG.
+tiling:
+  window_size: 1048576
+  core_size: 524288
+
+model:
+  source: huggingface    # huggingface | kaggle | path
+  version: all_folds
+  checkpoint_path: null  # for source: path
+  organism: human
+
+extraction:
+  batch_windows: 1
+  storage_dtype: float16
+  chromosomes: [chr22]
+  max_windows: null
+
+validation:
+  num_centered: 200
+  num_boundary: 50
+  boundary_shifts: [-65536, -16384, 16384, 65536]
+  num_precision: 8
+  num_rc: 50
+  num_sanity_neighbors: 200
+  seed: 0
+  precision_window_size: 262144   # fp32 compute needs ~2x the memory of bf16
+  stages: null                      # or a subset of the stage names

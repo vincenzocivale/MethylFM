@@ -1,0 +1,38 @@
+# Single canonical MethylFM architecture. There is one model class and one
+# default configuration -- this file is not a menu of architecture variants.
+# Keys here map directly onto methylfm.model.methylfm.build_model()'s reading
+# of this section, which in turn maps onto the real constructor parameter
+# names of MethylFM / MHCLatentBackbone / SetToLatentCrossAttention / etc.
+model_dim: 512
+num_latents: 128
+num_layers: 16
+num_heads: 8
+mlp_ratio: 4
+mhc_expansion_rate: 4
+mhc_sinkhorn_iters: 20
+locus_dim: 512
+dropout: 0.0
+
+# CpG locus encoder: frozen, precomputed AlphaGenome trunk embeddings (1-bp +
+# 128-bp, looked up per CpG from an external store built once by
+# `methylfm extract-cpg-embeddings`) + a small trainable adapter. AlphaGenome never
+# runs during pretraining. See docs/CPG_ENCODER.md. `type: mock` is for
+# unit/smoke tests only (see `methylfm smoke-test`) and must not be used here.
+cpg_encoder:
+  type: alphagenome
+  embedding_1bp_dim: 1536
+  embedding_128bp_dim: 3072
+  adapter_hidden_size: 512   # must equal locus_dim
+  adapter_bottleneck_size: 64
+  lookup_mode: gather        # gather: read needed rows from the memory-mapped store | resident: table on GPU
+  lookup_chunk_size: 65536
+  # Store location: $METHYLFM_CPG_EMBEDDING_STORE, or set `store_path` here (machine-specific; leave null in git).
+  store_path: null
+  asset_id: null             # pin to a specific store id (checked against the store's manifest)
+
+projector:
+  hidden_dim: 1024
+  output_dim: 512
+
+cross_attention:
+  chunk_size: null

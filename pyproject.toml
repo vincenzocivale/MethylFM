@@ -1,0 +1,42 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "methylfm"
+version = "0.1.0"
+description = "Foundation model pretraining for DNA methylation array data"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+dependencies = [
+    "torch>=2.2",
+    "numpy>=1.24",
+    "pyyaml>=6.0",
+    "pyarrow>=14.0",
+    "einops>=0.7",
+    "tqdm>=4.66",
+    "wandb>=0.16",
+    "transformers>=4.40",
+    "accelerate>=0.30",
+    "safetensors>=0.4",
+]
+
+[project.optional-dependencies]
+# Offline CpG-embedding pipeline (audit/validate); extraction additionally
+# needs the separate JAX environment described in docs/CPG_ENCODER.md.
+cpg-embeddings = ["pyfaidx>=0.8"]
+dev = [
+    "pytest>=7.4",
+    "pytest-cov>=4.1",
+    "pyfaidx>=0.8",
+]
+
+[project.scripts]
+methylfm = "methylfm.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

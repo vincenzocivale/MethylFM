@@ -1,0 +1,33 @@
+# Canonical pretraining configuration. There is exactly one pretraining setup;
+# this file composes model / data / logging defaults (via `includes`, resolved
+# relative to this file by methylfm.utils.config.load_config) and adds the
+# objective/optimizer/training settings that are specific to pretraining.
+seed: 1337
+
+includes:
+  model: model/methylfm.yaml
+  data: data/cpgcorpus.yaml
+  wandb: logging/wandb.yaml
+
+sigreg:
+  lambda: 0.02
+  num_slices: 1024
+  num_points: 17
+
+optimizer:
+  name: adamw
+  lr: 3.0e-4
+  weight_decay: 0.05
+  betas: [0.9, 0.95]
+  warmup_steps: 2000
+  max_steps: 200000
+  grad_clip: 1.0
+
+training:
+  precision: bf16
+  grad_accum_steps: 1
+  log_interval: 50
+  repr_log_interval: 500
+  ckpt_interval: 1000
+  ckpt_dir: outputs/checkpoints
+  resume_from: null

@@ -1,0 +1,21 @@
+# CpGCorpus is the intended pretraining corpus (CpGPT, Camillo et al.,
+# bioRxiv 10.1101/2024.10.24.619766; code: github.com/lcamillo/CpGPT).
+# `root` must point at a local materialization of the corpus, e.g. produced via:
+#   aws s3 sync s3://cpgpt-lucascamillo-public/<prefix> <root> --request-payer requester
+# Leave `root` null (or set METHYLFM_DATA_ROOT) until the corpus has been
+# downloaded -- `methylfm audit-data` will report an actionable error rather
+# than silently falling back to synthetic data. See src/methylfm/data/cpgcorpus.py
+# for the documented, NOT-yet-verified Arrow schema assumptions.
+root: null
+use_qc_processed: true
+min_cpgs_per_sample: 1000
+split_seed: 1337
+val_fraction: 0.02
+
+batch_size: 32
+num_workers: 4
+
+views:
+  global_keep_fraction: 0.8
+  num_local_views: 4
+  local_keep_fraction: 0.25

@@ -1,0 +1,20 @@
+name: methylfm
+channels:
+  - pytorch
+  - nvidia
+  - conda-forge
+dependencies:
+  - python=3.11
+  - pytorch>=2.2
+  - pytorch-cuda=12.1
+  - numpy
+  - pyyaml
+  - pyarrow
+  - tqdm
+  - pip
+  - pip:
+      - einops>=0.7
+      - wandb>=0.16
+      - pytest>=7.4
+      - pytest-cov>=4.1
+      - -e .
